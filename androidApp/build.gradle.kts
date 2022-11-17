@@ -41,4 +41,5 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.5.1")
 
     implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 }

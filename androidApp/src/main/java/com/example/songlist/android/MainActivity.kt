@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,21 +11,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
-import com.example.songlist.Greeting
+import com.example.songlist.SongLoader
+import com.example.songlist.models.Song
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyApplicationTheme(
@@ -75,8 +74,6 @@ fun MyApplicationTheme(
 }
 
 class MainActivity : ComponentActivity() {
-    private val songs = arrayOf(1, 2, 3, 4, 5)
-
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,9 +96,22 @@ class MainActivity : ComponentActivity() {
                             .padding(12.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
+                        val scope = rememberCoroutineScope()
+                        var songs by remember { mutableStateOf<List<Song>>(arrayListOf()) }
+
+                        LaunchedEffect(true) {
+                            scope.launch {
+                                songs = try {
+                                    SongLoader().getSongList()
+                                } catch (e: Exception) {
+                                    arrayListOf<Song>()
+                                }
+                            }
+                        }
+
                         LazyColumn {
                             items(songs) {
-                                SongCard()
+                                SongCard(it)
                                 Divider(
                                     color = Color("#DFDFDF".toColorInt()),
                                     modifier = Modifier.padding(start = 78.dp)
@@ -116,20 +126,20 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SongCard() {
+fun SongCard(data: Song) {
     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
         AsyncImage(
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape),
-            model = "https://is4-ssl.mzstatic.com/image/thumb/Music112/v4/32/cb/9d/32cb9d04-ef0f-93bb-fd2f-19b395785025/075679956187.jpg/600x600bb.jpg",
+            model = data.artworkUrl100,
             contentDescription = "Album image"
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column() {
-            Text(text = "Still Into You", style = MaterialTheme.typography.h6)
+            Text(text = data.trackName, style = MaterialTheme.typography.h6)
             Text(
-                text = "Paramore",
+                text = data.artistName,
                 style = MaterialTheme.typography.subtitle1,
                 color = Color.Gray
             )
