@@ -1,4 +1,4 @@
-package com.example.songlist
+package com.example.songlist.api
 
 import com.example.songlist.models.Song
 import com.example.songlist.models.SongResponse
@@ -10,7 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-class SongLoader {
+class SongService {
     private val httpClient = HttpClient()
 
 //    private val httpClient = HttpClient {

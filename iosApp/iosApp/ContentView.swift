@@ -2,20 +2,32 @@ import SwiftUI
 import shared
 
 struct ContentView: View {
+    @ObservedObject private(set) var viewModel: ViewModel
+    
     let greet = Greeting().greeting()
     
-    let songs = [1, 2, 3, 4, 5]
+    var body: some View {
+        switch viewModel.viewState {
+        case is SongUiState.Loading: ProgressView()
+        case let data as SongUiState.Data: SongCollection(songs: data.songs)
+        default: EmptyView()
+        }
+    }
+}
+
+struct SongCollection: View {
+    private(set) var songs: [Song]
     
     var body: some View {
         List(songs, id: \.self) { song in
             HStack {
-                ImageView(withURL: "https://is4-ssl.mzstatic.com/image/thumb/Music112/v4/32/cb/9d/32cb9d04-ef0f-93bb-fd2f-19b395785025/075679956187.jpg/600x600bb.jpg")
+                ImageView(withURL: song.artworkUrl100)
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading) {
-                    Text("Still Into You")
+                    Text(song.trackName)
                         .font(.system(size: 20, weight: .medium))
-                    Text("Paramore")
+                    Text(song.artistName)
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
@@ -24,8 +36,28 @@ struct ContentView: View {
     }
 }
 
+extension ContentView {
+    class ViewModel: ObservableObject {
+        @Published var viewState: SongUiState = SongUiState.Loading()
+        
+        let songViewModel = SongViewModel()
+        
+        init() {
+            songViewModel.onLaunched()
+            
+            songViewModel.observeViewState{ state in
+                self.viewState = state
+            }
+        }
+        
+        deinit {
+            songViewModel.clear()
+        }
+    }
+}
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(viewModel: ContentView.ViewModel())
     }
 }

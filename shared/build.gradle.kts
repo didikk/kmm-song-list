@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     kotlin("plugin.serialization") version "1.7.21"
+    id("dev.icerock.moko.kswift") version "0.6.1"
 }
 
 kotlin {
@@ -26,6 +27,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+                api("com.doublesymmetry:multiplatform-viewmodel:0.0.1")
             }
         }
         val commonTest by getting {
@@ -70,6 +73,10 @@ android {
         minSdk = 21
         targetSdk = 32
     }
+}
+
+kswift {
+    install(dev.icerock.moko.kswift.plugin.feature.SealedToSwiftEnumFeature)
 }
 
 kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class.java) {

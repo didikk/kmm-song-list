@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,8 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
-import com.example.songlist.SongLoader
+import com.example.songlist.api.SongService
 import com.example.songlist.models.Song
+import com.example.songlist.viewmodel.SongUiState
+import com.example.songlist.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -74,6 +77,8 @@ fun MyApplicationTheme(
 }
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: SongViewModel by viewModels()
+
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,37 +94,49 @@ class MainActivity : ComponentActivity() {
                     },
                     backgroundColor = MaterialTheme.colors.background
                 ) {
-                    Surface(
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        val scope = rememberCoroutineScope()
-                        var songs by remember { mutableStateOf<List<Song>>(arrayListOf()) }
+                    LaunchedEffect(true) {
+                        viewModel.onLaunched()
+                    }
 
-                        LaunchedEffect(true) {
-                            scope.launch {
-                                songs = try {
-                                    SongLoader().getSongList()
-                                } catch (e: Exception) {
-                                    arrayListOf<Song>()
-                                }
-                            }
-                        }
-
-                        LazyColumn {
-                            items(songs) {
-                                SongCard(it)
-                                Divider(
-                                    color = Color("#DFDFDF".toColorInt()),
-                                    modifier = Modifier.padding(start = 78.dp)
-                                )
-                            }
-                        }
+                    when(val state = viewModel.viewState.collectAsState().value) {
+                        is SongUiState.Loading -> Loading()
+                        is SongUiState.Data -> SongCollection(songs = state.songs)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun Loading() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun SongCollection(songs: List<Song>) {
+    Surface(
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        LazyColumn {
+            items(songs) {
+                SongCard(it)
+                Divider(
+                    color = Color("#DFDFDF".toColorInt()),
+                    modifier = Modifier.padding(start = 78.dp)
+                )
             }
         }
     }
