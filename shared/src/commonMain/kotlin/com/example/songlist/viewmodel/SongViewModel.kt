@@ -9,11 +9,16 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class SongViewModel: ViewModel() {
+sealed class SongUiState {
+    data class Data(val songs: List<Song>) : SongUiState()
+    object Loading : SongUiState()
+}
+
+class SongViewModel : ViewModel() {
     private val _viewState = MutableStateFlow<SongUiState>(SongUiState.Loading)
     val viewState: StateFlow<SongUiState> = _viewState
 
-    fun onLaunched() {
+    fun getSongList() {
         scope.launch {
             try {
                 val songs = SongService().getSongList()

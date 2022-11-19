@@ -2,7 +2,6 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     kotlin("plugin.serialization") version "1.7.21"
-    id("dev.icerock.moko.kswift") version "0.6.1"
 }
 
 kotlin {
@@ -73,10 +72,6 @@ android {
         minSdk = 21
         targetSdk = 32
     }
-}
-
-kswift {
-    install(dev.icerock.moko.kswift.plugin.feature.SealedToSwiftEnumFeature)
 }
 
 kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class.java) {

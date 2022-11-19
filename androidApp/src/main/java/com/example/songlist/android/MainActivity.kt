@@ -24,11 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
-import com.example.songlist.api.SongService
 import com.example.songlist.models.Song
 import com.example.songlist.viewmodel.SongUiState
 import com.example.songlist.viewmodel.SongViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun MyApplicationTheme(
@@ -95,7 +93,7 @@ class MainActivity : ComponentActivity() {
                     backgroundColor = MaterialTheme.colors.background
                 ) {
                     LaunchedEffect(true) {
-                        viewModel.onLaunched()
+                        viewModel.getSongList()
                     }
 
                     when(val state = viewModel.viewState.collectAsState().value) {

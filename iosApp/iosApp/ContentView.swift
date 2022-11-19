@@ -43,11 +43,11 @@ extension ContentView {
         let songViewModel = SongViewModel()
         
         init() {
-            songViewModel.onLaunched()
-            
             songViewModel.observeViewState{ state in
                 self.viewState = state
             }
+            
+            songViewModel.getSongList()
         }
         
         deinit {

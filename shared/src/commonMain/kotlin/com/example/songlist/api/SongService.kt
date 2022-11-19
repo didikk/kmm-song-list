@@ -25,7 +25,7 @@ class SongService {
 
     @Throws(Exception::class)
     suspend fun getSongList(): List<Song> {
-        val url = "https://itunes.apple.com/search?entity=song&limit=10&offset=0&term=paramore"
+        val url = "https://itunes.apple.com/search?attribute=allArtistTerm&limit=10&offset=0&term=paramore"
         val resString: String = httpClient.get(url).body()
 
         val json = Json {
